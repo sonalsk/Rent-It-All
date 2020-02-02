@@ -1,10 +1,12 @@
-
+package items;
+//model class for item table
 public class Item {
 	protected int id;
 	protected String name;
 	protected String category;
 	protected int price;
 	protected int duration;
+	protected int deposit;
 	
 	public Item() {
 		
@@ -14,20 +16,22 @@ public class Item {
 		this.id = id;
 	}
 	
-	public Item(int id, String name, String category, int price, int duration) {
+	public Item(int id, String name, String category, int price, int duration, int deposit) {
 	       this.name = name;
 	       this.category = category;
 	       this.price = price;
 	       this.duration = duration;
 	       this.id = id;
+	       this.deposit = deposit;
    }
 	
 	
-    public Item(String name, String category, int price, int duration) {
+    public Item(String name, String category, int price, int duration, int deposit) {
         this.name = name;
         this.category = category;
         this.price = price;
         this.duration = duration;
+        this.deposit = deposit;
     }
     
     public int getID() {
@@ -68,6 +72,14 @@ public class Item {
     
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+    
+    public int getDeposit() {
+    	return price;
+    }
+    
+    public void setDeposit(int price) {
+        this.price = price;
     }
 }
 

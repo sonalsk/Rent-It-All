@@ -1,3 +1,4 @@
+package items;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.DriverManager;
@@ -7,11 +8,12 @@ import java.util.ArrayList;
 import java.sql.Statement;
 import java.sql.ResultSet;
 
+//data base management class for items table
 public class ItemDBC {
-	private String jdbcURL;
-	private String jdbcUsername;
-    private String jdbcPassword;
-    private Connection jdbcConnection;
+	private static String jdbcURL;
+	private static String jdbcUsername;
+    private static String jdbcPassword;
+    private static Connection jdbcConnection;
      
     public ItemDBC(String jdbcURL, String jdbcUsername, String jdbcPassword) {
         this.jdbcURL = jdbcURL;
@@ -19,26 +21,25 @@ public class ItemDBC {
         this.jdbcPassword = jdbcPassword;
     }
      
-    protected void connect() throws SQLException {
+    protected static void connect() throws SQLException {
         if (jdbcConnection == null || jdbcConnection.isClosed()) {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
             } catch (ClassNotFoundException e) {
                 throw new SQLException(e);
             }
-            jdbcConnection = DriverManager.getConnection(
-                                        jdbcURL, jdbcUsername, jdbcPassword);
+            jdbcConnection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
         }
     }
      
-    protected void disconnect() throws SQLException {
+    protected static void disconnect() throws SQLException {
         if (jdbcConnection != null && !jdbcConnection.isClosed()) {
             jdbcConnection.close();
         }
     }
     
-    public boolean insertItem(Item item) throws SQLException {
-        String sql = "INSERT INTO ITEMS (ID, Name, Category, PricePerDay, Duration) VALUES (?, ?, ?, ?, ?)";
+    public static boolean insertItem(Item item) throws SQLException {
+        String sql = "INSERT INTO ITEMS (ID, Name, Category, PricePerDay, Duration, SecurityDepo) VALUES (?, ?, ?, ?, ?, ?)";
         connect();
          
         PreparedStatement statement = jdbcConnection.prepareStatement(sql);
@@ -47,6 +48,7 @@ public class ItemDBC {
         statement.setString(3, item.getCategory());
         statement.setInt(4, item.getPrice());
         statement.setInt(5, item.getDuration());
+        statement.setInt(6, item.getDeposit());
          
         boolean rowInserted = statement.executeUpdate() > 0;
         statement.close();
@@ -54,7 +56,7 @@ public class ItemDBC {
         return rowInserted;
     }
     
-    public List<Item> listAllItems() throws SQLException {
+    public static List<Item> listAllItems() throws SQLException {
         List<Item> listItem = new ArrayList<>();
          
         String sql = "SELECT * FROM ITEMS";
@@ -70,8 +72,9 @@ public class ItemDBC {
             String category = resultSet.getString("Category");
             int price = resultSet.getInt("PricePerDay");
             int duration = resultSet.getInt("Duration");
+            int deposit = resultSet.getInt("SecurityDepo");
              
-            Item item = new Item(id, name, category, price, duration);
+            Item item = new Item(id, name, category, price, duration, deposit);
             listItem.add(item);
         }
          
@@ -83,7 +86,7 @@ public class ItemDBC {
         return listItem;
     }
     
-    public boolean deleteItem(Item item) throws SQLException {
+    public static boolean deleteItem(Item item) throws SQLException {
         String sql = "DELETE FROM ITEMS where ID = ?";
          
         connect();
@@ -97,8 +100,8 @@ public class ItemDBC {
         return rowDeleted;     
     }
     
-    public boolean updateItem(Item item) throws SQLException {
-        String sql = "UPDATE ITEMS SET Name = ?, Category = ?, PricePerDay = ?, Duration = ?";
+    public static boolean updateItem(Item item) throws SQLException {
+        String sql = "UPDATE ITEMS SET Name = ?, Category = ?, PricePerDay = ?, Duration = ?, SecurityDepo = ?";
         sql += " WHERE ID = ?";
         connect();
          
@@ -107,7 +110,8 @@ public class ItemDBC {
         statement.setString(2, item.getCategory());
         statement.setInt(3, item.getPrice());
         statement.setInt(4, item.getDuration());
-        statement.setInt(5,  item.getID());
+        statement.setInt(5,  item.getDeposit());
+        statement.setInt(6,  item.getID());
          
         boolean rowUpdated = statement.executeUpdate() > 0;
         statement.close();
@@ -115,7 +119,7 @@ public class ItemDBC {
         return rowUpdated;     
     }
    
-    public Item getItem(int id) throws SQLException {
+    public static Item getItem(int id) throws SQLException {
         Item item = null;
         String sql = "SELECT * FROM ITEMS WHERE ID = ?";
          
@@ -131,8 +135,9 @@ public class ItemDBC {
             String category = resultSet.getString("Category");
             int price = resultSet.getInt("PricePerDay");
             int duration = resultSet.getInt("Duration");
+            int deposit = resultSet.getInt("SecurityDepo");
              
-            item = new Item(id, name, category, price, duration);
+            item = new Item(id, name, category, price, duration, deposit);
         }
          
         resultSet.close();
